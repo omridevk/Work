@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Kaltura Playlist api</title>
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+
+<script type="text/javascript">
+	// Enable uiconf js which includes external resources
+	mw.setConfig('Kaltura.EnableEmbedUiConfJs', true);
+
+	function jsKalturaPlayerTest( videoId ){
+		// Name this module
+		module( "playlist" );
+		var kdp = $('#' + videoId )[0];
+		var $iframe = $('#' + videoId + '_ifp').contents();
+
+		asyncTest( "Playlist API test #1", function(){
+			kalturaQunitWaitForPlayer(function(){
+				// look for the playlist:
+				ok( $( $iframe).find( '.medialistContainer.k-vertical' ).length > 0 , "Found vertical playlist" );
+				equal ( $( $iframe).find('.playlistTitle').text(), "simple two clip pl", "Current playlist index is 0");
+				start();
+			});
+		});
+
+
+		asyncTest('Playlist API test #2', function() {
+
+			kdp.setKDPAttribute('tabBar', 'selectedIndex', 1);
+
+			setTimeout(function() {
+				start(); // this would tell QUnit to start the test
+				equal ( $( $iframe).find('.playlistTitle').text(), "electric sheep test", "Current playlist index changed to 1");
+				kdp.setKDPAttribute("playlistAPI.dataProvider", "selectedIndex", 1 );
+				equal ( kdp.evaluate('{playlistAPI.dataProvider.selectedIndex}'), 1, "second clip was selected");
+				ok( typeof($( kdp.evaluate('{playlistAPI.dataProvider}')) === "object") , "dataProvider object was set" );
+			}, 3000);
+		});
+	}
+
+</script>
+<!-- qunit-kaltura must come after qunit-bootstrap.js and after mwEmbedLoader.php and after any jsCallbackReady stuff-->
+<script type="text/javascript" src="../../../modules/KalturaSupport/tests/resources/qunit-kaltura-bootstrap.js"></script>
+
+
+<script>
+	// TODO add these to the qUnit test!
+	kWidget.addReadyCallback( function( playerId ){
+		
+		var kdp = document.getElementById( playerId );
+		$('#currentIndex').click( function(){
+			alert( kdp.evaluate( "{playlistAPI.dataProvider.selectedIndex}" ) );
+			return false;
+		});
+		$('#plData').click( function(){
+			alert( JSON.stringify( kdp.evaluate("{playlistAPI.dataProvider}") ) );
+			return false;
+		});
+		
+		$('#play2ndItem').click( function(){
+			kdp.setKDPAttribute("playlistAPI.dataProvider", "selectedIndex", 1 );
+			return false;
+		});
+		$('#switchTab').click( function(){
+			kdp.setKDPAttribute('tabBar', 'selectedIndex', 1);
+			return false;
+		})
+	});
+</script>
+</head>
+<body>
+<h2> Kaltura Playlist api </h2>
+<div id="myVideoTarget" style="width:720px;height:330px;float:left">
+</div>
+<script>
+kWidget.featureConfig({
+	'targetId': 'myVideoTarget',
+	'wid': '_243342',
+	'uiconf_id' : '25975211',
+	'flashvars': {
+		'playlistAPI': {
+			'plugin' : true,
+			'includeInLayout': true,
+			'kpl0Url': "http://www.kaltura.com/index.php/partnerservices2/executeplaylist?playlist_id=1_e387kavu&partner_id=243342&subp_id=24334200&format=8&ks={ks}",
+			'kpl0Name': "simple two clip pl",
+			'kpl1Url': "http://www.kaltura.com/index.php/partnerservices2/executeplaylist?playlist_id=0_9ahdych6&partner_id=243342&subp_id=24334200&format=8&ks={ks}",
+			'kpl1Name': "electric sheep test",
+			'autoContinue': true,
+			'autoPlay': false,
+			//'initItemEntryId': '0_swup5zao',
+			'loop': false
+		}
+	},
+	'imageDefaultDuration': "2"
+});
+</script>
+<br>
+<div style="clear:both"></div>
+<h2>Playlists <b>API:</b></h2>
+<a href="#" id="switchTab"> Switch to Tab index 1</a>  ( electric sheep, 2nd tab listed )
+<pre class="prettyprint linenums">
+// Set the tab index ( select playlist )
+kdp.setKDPAttribute('tabBar', 'selectedIndex', 1);
+</pre>
+<a href="#" id="play2ndItem"> Play second item </a>
+<pre class="prettyprint linenums">
+// Play the second clip of the current playlist: 
+kdp.setKDPAttribute("playlistAPI.dataProvider", "selectedIndex", 1 );
+</pre>
+<a href="#" id="currentIndex"> Get Current Clip Index</a> 
+<pre class="prettyprint linenums">
+// get current selected clip index:
+kdp.evaluate( "{playlistAPI.dataProvider.selectedIndex}" ) );
+</pre> 
+<a href="#" id="plData"> Get Playlist Data </a> 
+<pre class="prettyprint linenums">
+// get playlist data provider ( good for building external clip list )
+kdp.evaluate("{playlistAPI.dataProvider}") ) );
+</pre>
+
+ 
+</body>
+
+</html>

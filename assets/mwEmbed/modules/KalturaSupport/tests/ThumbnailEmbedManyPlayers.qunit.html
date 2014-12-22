@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Thumbnail embed</title>
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+</head>
+<body>
+<h2> Thumbnail embed </h2>
+The thumbnail embed method takes the same arguments as "kWidget.embed". 
+Thumbnail embed will pass all the configuration to the kWidget.embed when the user "click" on the play button.
+<pre class="prettyprint linenums">
+&lt;div id=&quot;myEmbedTarget&quot; style=&quot;width:400px;height:330px;&quot;&gt;&lt;/div&gt;
+&lt;script src=&quot;{{HTML5LibraryURL}}&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+	kWidget.thumbEmbed({
+		'targetId': 'myEmbedTarget',
+		'wid': '_243342',
+		'uiconf_id' : '12905712',
+		'entry_id' : '0_uka1msg4',
+	});
+&lt;/script&gt;
+</script>
+</pre>
+Here are several embed modes to compare performance when embedding lots of players on a single page. <br>
+Default:( Thumb embed ) <br>
+<a href="?forceMobileHTML5"> Force Mobile HTML5 ( thumbs )</a> <br>
+
+<a href="?forceNoThumbFlash"> Force No thumbs Flash </a> ( warning resource intensive ).<br>
+<a href="?forceNoThumbHTML5"> Force No thumbs HTML5 </a> ( warning resource intensive ) <br>
+<br />
+<div id="score"></div>
+<div id="myVideoContainer" style="position:relative"></div>
+<script type="text/javascript">	
+function startClock(){
+	startTime = new Date().getTime();
+}
+function getRunTime(){
+	return new Date().getTime() - startTime;
+}
+function appendToScore( name ){
+	$( "#score" ).append( "Took <b>" + getRunTime() + "</b> ms " + name + "<br>" );
+}
+// check if we are running a QUNit test: 
+if( window.QUnit ){
+	
+	window.QUnit.start();
+	// Force html5 if not running flash qUnit tests:
+	if( document.URL.indexOf('runFlashQunitTests') === -1 ){
+		mw.setConfig( 'forceMobileHTML5', true );
+	}
+	
+	module( "Thumbnail Player embed test");
+	asyncTest( "Testing Thumb embed", function(){
+		var playerId = 'myPlayerTarget';
+		
+		// Add the player to the container: 
+		$( '#myVideoContainer' ).html(
+			'<div id="' + playerId + '" style="width:400px;height:300px"></div>' 
+		);
+		
+		// Do the thumb embed:
+		kWidget.thumbEmbed({
+			'targetId': playerId,
+			'wid': '_243342',
+			'uiconf_id' : '12905712',
+			'entry_id' : '0_uka1msg4',
+			'flashvars': {
+				'externalInterfaceDisabled' : false
+			},
+			'readyCallback': function( cbPlayerId ){
+				var kdp = $('#' + cbPlayerId)[0];
+				equal( playerId, cbPlayerId, "kWidget readyCallback fired with playerid" );
+				window['onMediaReady'] = function(){
+					ok( true, "Ready callback fired onMedia ready");
+					kdp.sendNotification('doPause');
+				}
+				kdp.addJsListener("mediaReady", "onMediaReady");
+				// ( the click should trigger the play )
+				window['onPlayerUpdatePlayhead'] = function(){
+					ok( true, " onPlayerUpdatePlayhead event recived ( playing content after thumb click )");
+					kdp.sendNotification('doPause');
+					kdp.removeJsListener('playerUpdatePlayhead', 'onPlayerUpdatePlayhead' );
+					start();
+				};
+				kdp.addJsListener('playerUpdatePlayhead', 'onPlayerUpdatePlayhead' );
+						
+			},
+			'thumbReadyCallback': function( cbPlayerId ){
+				equal( playerId, cbPlayerId, "thumbReadyCallback fired with playerid" );
+				$( '#' + cbPlayerId ).find('.kWidgetPlayBtn').click();
+			}
+		});
+	});
+}
+</script>
+<script>
+	// Only run default demo if not a qunit test: 
+	if( !window.QUnit ){
+		/* configuration */
+		var numOfPlayer = 12;
+		var useThumbEmbed = true;
+		if( document.URL.indexOf( 'forceNoThumbFlash') != -1){
+			useThumbEmbed = false;
+		}
+		if( document.URL.indexOf( '?forceNoThumbHTML5') != -1){
+			useThumbEmbed = false;
+			mw.setConfig('forceMobileHTML5', true);
+		}
+		var possibleEntries = [ '0_486jji2g', '0_k4dkai5u', '0_yxm3pstm', '1_n1nv959k',
+		                        '0_c0r624gh', '0_c0r624gh', '1_v1z55w0b', '0_uka1msg4' ];
+		
+		// flag to keep track of when all the players are "ready"
+		var playersReady = 0
+		startClock();
+		for( var i=0; i < numOfPlayer; i++){
+			// wrap in local closure to keep local ready callback 
+			( function( playerInx ){
+				var playerId = 'player_' + playerInx ;
+				
+				// Add a trget div:
+				$( '#myVideoContainer' ).append( 
+						$('<div />')
+							.attr('id', playerId)
+							.css({
+								'width': 320,
+								'height': 240,
+								'float':'left',
+								'position': 'relative',
+								'margin': 5
+							})
+				)
+				var entryId = possibleEntries[ Math.floor(Math.random()*possibleEntries.length) ]
+				var kWidgetEmbedSettings = {
+					'targetId': playerId,
+					'wid': '_243342',
+					'uiconf_id' : '12905712',
+					'entry_id' : entryId,
+					'flashvars':{
+						'externalInterfaceDisabled' : false
+					},
+					'readyCallback': function( playerId ){
+						console.log("player " + playerId + " ready for binding");
+						var kdp = document.getElementById( playerId )
+						kdp.kBind('mediaReady', function(){
+							playersReady++;
+							if( playersReady == numOfPlayer ){
+								appendToScore( "to render " + numOfPlayer + " players" );
+							}
+						});
+						
+					},
+					'thumbReadyCallback': function( playerId ){
+						playersReady++;
+						if( playersReady == numOfPlayer ){
+							appendToScore( "to render " + numOfPlayer + " players" );
+						}
+					}
+				}
+				
+				if( useThumbEmbed ){
+					kWidget.thumbEmbed( kWidgetEmbedSettings );
+				} else {
+					kWidget.embed( kWidgetEmbedSettings );
+				}
+			})(i);
+		}
+	}
+</script>
+ 
+</body>
+</html>

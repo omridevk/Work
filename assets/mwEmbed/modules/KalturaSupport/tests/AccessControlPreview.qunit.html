@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Access Control Preview, Custom Purchase</title>
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+<script type="text/javascript">	
+function jsKalturaPlayerTest( videoId ){
+	var kdp = $('#' + videoId)[0];
+	module( "Access Control Preview" );
+	// Name this module
+	asyncTest("Free Preview End event", function(){
+		
+		window['onFreePreviewEnd'] = function(){
+			kdp.removeJsListener( 'freePreviewEnd', 'onFreePreviewEnd');
+			ok( true, 'Recived onFreePreviewEnd event' );
+			runTriggerPurchase();
+			QUnit.start();
+		};
+		
+		kalturaQunitWaitForPlayer(function(){
+			kdp.addJsListener( 'freePreviewEnd', 'onFreePreviewEnd' );
+			// Start playback
+			kdp.sendNotification( 'doPlay' );
+			// Seek to 8 seconds ( no sense in waiting for 10 seconds )
+			setTimeout(function(){
+				kdp.sendNotification( 'doSeek', 8 );
+			},1000);
+		});
+	});
+	
+	window['runTriggerPurchase'] = function(){
+		asyncTest("Trigger purchase", 2, function(){
+			var localKs = null;
+			window['onChangeMedia'] = function(){
+				kdp.removeJsListener( 'changeMedia', 'onChangeMedia');
+				// validate the updated ks: 
+				equal( kdp.evaluate( '{servicesProxy.kalturaClient.ks}' ), localKs, 'KS updated on change media' );
+				runPlaybackWithValidatedKS();
+				start();
+			}
+			
+			window['onPurchaseResult'] = function( rawResult ){
+				ok( rawResult.ks, "KS present in purchase result" );
+				// update ks...
+				localKs = rawResult.ks;
+				// add a change media listener for the KS update: 
+				kdp.addJsListener('changeMedia', 'onChangeMedia');
+			}
+			
+			$('.myPurchaseDialog').find("button").click();
+		});
+	};
+	window['runPlaybackWithValidatedKS'] = function(){
+		asyncTest("Playback full content", 1, function(){
+			window['onDoSeek'] = function(){
+				kdp.sendNotification( 'doPlay' );
+				setTimeout(function(){
+					kdp.sendNotification( 'doPlay' );
+				},1000);
+				
+				var testDone = false;
+				window.checkTestDone = function(){
+					if( kdp.evaluate('{video.player.currentTime}') > 11 ){
+						testDone = true;
+						kdp.removeJsListener('playerUpdatePlayhead', 'checkTestDone' );
+						ok( kdp.evaluate('{video.player.currentTime}') > 11, 'Playing content past 11 seconds');
+						kdp.sendNotification('doPause');
+						// done will all tests
+						start();
+					}
+				};
+				kdp.addJsListener('playerUpdatePlayhead', 'checkTestDone' );
+				
+				setTimeout( function(){
+					if( !testDone ){
+						// test seek timed out:
+						ok( false, "Could not seek and play past 11" );
+					}
+				}, 9000);
+			};
+			// Start playback
+			kdp.sendNotification( 'doPlay' );
+			kdp.addJsListener('playerSeekEnd', 'onDoSeek' );
+			// seek past end time:
+			kdp.sendNotification( 'doSeek', 9 );
+		});
+	};
+}
+</script>
+<!-- qunit-kaltura must come after qunit-bootstrap.js and after mwEmbedLoader.php and after any jsCallbackReady stuff-->
+<script type="text/javascript" src="resources/qunit-kaltura-bootstrap.js"></script>
+</head>
+<body>
+<h2> Access Control Preview, Custom Purchase Flow </h2>
+Demo will pause at 10 seconds, and offer a purchase button. 
+The button calls a back end service that hands off a KS to the player. 
+<i>In a production environment you would check for purchase confirmation</i> <br><br>
+<div id="playerTarget" style="width:400px;height:330px;"></div>
+<br>
+<h2> Integration Guide:</h2>
+The default free preview dialog is repressed with <i>disableAlerts</i>, and an custom action is overlaid, <br>
+to demonstrate end to end preview -> purchase work flow. <br>
+Basic flow is as follows: 
+<pre class="prettyprint linenums">
+kWidget.embed( 'playerTarget', {<br/>	'wid' : '_243342',<br/>	'uiconf_id' : '8145862',<br/>	'entry_id' : '1_20x0ca3l',<br/>	'flashvars':{<br/>		'disableAlerts': true<br/>	},<br/>	'readyCallback': function( playerId ){<br/>		kdp = $('#' + playerId)[0];<br/>		// add a listener for onFreePreviewEnd event<br/>		kdp.kBind( 'freePreviewEnd', function(){<br/>			// video will be paused <br/>			// add your purchase flow<br/>			$('&lt;div&gt;').addClass('your-purchase-dialog')<br/>			.find('#purchase-done-button').click(function(){<br/>				// async purchase flow is complete, send the ks to the player: <br/>				kdp.setKDPAttribute( 'servicesProxy.kalturaClient', 'ks', ksJSON.ks );<br/>				$('.myPurchaseDialog').remove();<br/>				// player should be in &quot;ready to play&quot; state. <br/>			})<br/>		} );		<br/>	}<br/>});
+</pre>
+<script>
+	var myKdp = null;
+	window['doPurchaseDialog'] = function(){
+		var pos = $('#playerTarget').position();
+		$('#playerTarget').after(
+			$('<div />').append(
+				$('<h2>Sample purchase flow:</h2>'),
+				$('<br />'),
+				$('<button />')
+				.attr('type', 'button')
+				.html('simulate purchase')
+				.click( function(){
+					// set to loading 
+					$('.myPurchaseDialog').html( 'loading ...' );
+					// Query the service for a ks:
+					$.getJSON( '../../../services.php?service=KSTest&entry_id=1_20x0ca3l&wid=_243342', function( ksJSON ){
+						if( window['onPurchaseResult'] ){
+							window['onPurchaseResult']( ksJSON );
+						}
+						if( ksJSON && ksJSON.error ){
+							$('.myPurchaseDialog').html( ksJSON.error)
+						} else if( ksJSON && ksJSON.ks ){
+							myKdp.setKDPAttribute( 'servicesProxy.kalturaClient', 'ks', ksJSON.ks );
+							$('.myPurchaseDialog').remove();
+							// player should be in "ready to play" state. 
+						}
+					})
+				})
+			)
+			.addClass('myPurchaseDialog')
+			.css({
+				'position':'absolute',
+				'top': pos.top,
+				'left': pos.left,
+				'width' : "400px",
+				'height' : "330px",
+				'opacity': .8,
+				'background-color': 'black',
+				'color': 'white'
+			})
+		)
+	}
+	kWidget.embed( 'playerTarget', {
+		'wid' : '_243342',
+		'uiconf_id' : '8145862',
+		'entry_id' : '1_20x0ca3l',
+		'flashvars':{
+			'disableAlerts': true
+		},
+		'readyCallback': function( playerId ){
+			myKdp = $('#' + playerId)[0];
+			myKdp.addJsListener( 'freePreviewEnd', 'doPurchaseDialog' );
+		}
+	});
+</script>
+</body>
+</html>

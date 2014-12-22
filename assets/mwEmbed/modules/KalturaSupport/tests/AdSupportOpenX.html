@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+	<meta name="generator" content=
+	"HTML Tidy for Windows (vers 14 February 2006), see www.w3.org">
+
+	<title>Ad Support for OpenX.org</title>
+	<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+	<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+	<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+  </head>
+  <body>
+	<h1>
+	HTML5 ad integrations and formats  
+	</h1>
+
+	<h3>
+	VAST Module -- Player with a Pre-roll, Overlay
+	</h3>
+	<br>
+<div id="myVideoTarget" style="width:400px;height:330px;float:left">
+	<!--  SEO and video metadata go here -->
+</div>
+<script>
+	kWidget.featureConfig({
+		'targetId': 'myVideoTarget',
+		'wid': '_423851',
+		'uiconf_id' : '3066451',
+		'entry_id' : '1_67wtprz4',
+		'flashvars': {
+			'vast': {
+				//'plugin' : true,
+				'numPreroll':"1", 
+				'prerollInterval':"1",
+				'prerollStartWith':"1",
+				'prerollUrl':"http://projects.kaltura.com/mdale/hotelVastAd.xml", 
+				'overlayStartAt':"20",
+				'overlayInterval':"300",
+				'overlayUrl':"http://projects.kaltura.com/MichalR/vast_overlay.xml",
+				'numPostroll':"1",
+				'postrollInterval':"1",
+				'postrollStartWith':"1",
+				'postrollUrl':"http://projects.kaltura.com/mdale/hotelVastAd.xml",
+				'preSequence':"1",
+				'postSequence':"1",
+				'timeout':"4"
+			},
+      'skipBtn': {
+        'label': 'Skip Ad ›'
+      },
+      'noticeMessage': {
+        'text': 'Advertisment {sequenceProxy.timeRemaining|timeFormat}'
+      },
+			'adsOnReplay':true
+		}
+	})
+</script>
+    <br>
+  </body>
+</html>

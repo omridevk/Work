@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Capture Thumbnail HTML5</title>
+
+	<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+	<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+	<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+	
+    <script type="text/javascript">
+        $(document).ready(function() {
+			
+			var ks = false;
+
+			var createPlayer = function ( ks ) {
+				console.log( 'create - forceMobileHTML5:' + mw.getConfig( 'forceMobileHTML5' ) );
+				kWidget.embed({
+					'targetId': 'myVideoTarget',
+					'wid': '_' + $( '#partnerId' ).val(),
+					'uiconf_id' : '7015551',
+					'entry_id' : $( '#entryId' ).val(),
+					'flashvars':{
+						'externalInterfaceDisabled' : false,
+						'ks' : ks
+					},
+					'readyCallback': function( playerId ){
+						console.log( 'ready - forceMobileHTML5:' + mw.getConfig( 'forceMobileHTML5' ) );
+					}
+				});
+			};
+
+            $( '#getPlayer' ).click(function() {
+                // TODO: support switch between flash<->html5 - currently not stable
+                if($( '#forceHTML:checked' ).length ) {
+                    mw.setConfig( 'forceMobileHTML5', true );
+                }
+                else {
+                    mw.setConfig( 'forceMobileHTML5', false );
+                }
+
+				if( ks ) {
+					createPlayer( ks );
+					return ;
+				}
+
+                $.ajax({
+                    url: "http://www.kaltura.com/api_v3/index.php",
+                    cache: false,
+                    dataType: "jsonp",
+                    data: {
+                        service: "session",
+                        action: "start",
+                        format: 9,
+                        type: 2,
+                        partnerId: $( '#partnerId' ).val(),
+                        secret: $( '#adminSecret' ).val()
+                    },
+                    success: function(result) {
+                        ks = result;
+						createPlayer( ks );
+                    }
+                });
+
+            })
+        })
+    </script>
+</head>
+<body>
+<h2> Capture Thumbnail </h2>
+<br />
+<form action="" method="POST" id="pluginForm">
+    <div class="clearfix">
+        <label for="partnerId">Partner ID</label>
+        <div class="input">
+            <input type="text" id="partnerId" value="" />
+        </div>
+    </div>
+    <div class="clearfix">
+        <label for="adminSecret">Admin Secret</label>
+        <div class="input">
+            <input type="text" id="adminSecret" value="" />
+        </div>
+    </div>
+    <div class="clearfix">
+        <label for="entryId">Entry ID</label>
+        <div class="input">
+            <input type="text" id="entryId" value="" />
+        </div>
+    </div>
+    <div class="clearfix">
+        <label><input type="checkbox" id="forceHTML" /></label>
+        <div class="input">
+            <label for="forceHTML" style="width: auto">Force Mobile HTML5 (for testing with desktop HTML5 browsers)</label>
+        </div>
+    </div>
+    <br />
+    <div class="input">
+        <input class="btn primary" type="button" value="Get Player" id="getPlayer" />
+    </div>
+</form>
+<br />
+<div style="padding-left:50px;">
+    <div id="myVideoTarget" style="width:400px;height:330px;"></div>
+</div>
+</body>
+</html>

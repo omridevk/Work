@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Access Control Preview embed level ks</title>
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+<script type="text/javascript">	
+function jsKalturaPlayerTest( videoId ){
+	module( "Access Control Preview, embed level ks" );
+	
+	var kdp = $('#' + videoId)[0];
+	
+	asyncTest("Playback full content", 1, function(){
+		window['onDoSeek'] = function(){
+			kdp.sendNotification( 'doPlay' );
+
+			testDone = false;
+			window.checkTestDone = function(){
+				if( kdp.evaluate('{video.player.currentTime}') > 11 ){
+					testDone = true;
+					kdp.removeJsListener('playerUpdatePlayhead', 'checkTestDone' );
+					ok( kdp.evaluate('{video.player.currentTime}') > 11, 'Playing content past 11 seconds');
+					kdp.sendNotification('doPause');
+					// done will all tests
+					start();
+				}
+			};
+			kdp.addJsListener('playerUpdatePlayhead', 'checkTestDone' );
+			setTimeout( function(){
+				if( !testDone ){
+					// test seek timed out:
+					ok( false, "Could not seek and play past 11" );
+				}
+			}, 9000);
+			
+		};
+		
+		window['onFreePreviewEnd'] = function(){
+			ok( false, "Recived free preview end event on ks content");
+		}
+		kdp.addJsListener( 'freePreviewEnd', 'onFreePreviewEnd' );
+		kdp.addJsListener('doSeek', 'onDoSeek' );
+		
+	});
+}
+</script>
+<!-- qunit-kaltura must come after qunit-bootstrap.js and after mwEmbedLoader.php and after any jsCallbackReady stuff-->
+<script type="text/javascript" src="resources/qunit-kaltura-bootstrap.js"></script>
+</head>
+<body>
+<h2> Access Control Preview embed level ks </h2>
+
+<br />
+<div id="playerTarget" style="width:400px;height:330px;"> loading ... </div>
+<script>
+	$.getJSON( '../../../services.php?service=KSTest&entry_id=1_20x0ca3l&wid=_243342', function( ksJSON ){
+		if( ! ksJSON || ! ksJSON.ks ){
+			$('#playerTarget').text( 'error getting ks');
+			return ;
+		}
+		kWidget.embed( 'playerTarget', {
+			'wid' : '_243342',
+			'uiconf_id' : '8145862',
+			'entry_id' : '1_20x0ca3l',
+			'flashvars':{
+				'ks' : ksJSON.ks,
+				'disableAlerts': true
+			},
+			'readyCallback': function( playerId ){
+				var kdp = $('#' + playerId )[0];
+				// if testing start playback:
+				if( window.QUnit ){
+					kdp.kBind('mediaReady', function(){
+						kdp.sendNotification( 'doSeek', 9 );
+					})
+				}
+			}
+		});
+	});
+</script>
+</body>
+</html>

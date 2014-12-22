@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Player load time test</title>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+</head>
+<body>
+<h2> Player load time test </h2>
+
+<br />
+
+<div id="myPlayer" style="width:400px;height:330px;">
+	<!--  SEO and video metadata go here -->
+	<span property="dc:description" content="test folgers coffe"></span>
+	<span property="media:title" content="FolgersCoffe.mpeg"></span>
+	<span property="media:width" content="400"></span>
+	<span property="media:height" content="300"></span>
+</div><br /><br />
+<ol id="log"></ol>
+<script>
+	var log = document.getElementById( 'log' );
+	window['writeLog'] = function( msg ) {
+		var msgEl = document.createElement('li');
+		msgEl.innerHTML = msg;
+		log.appendChild( msgEl );
+	};
+	var startTime = new Date().getTime();
+	var readyTime, playTime;
+	window['doPlayCallback'] = function( playerId ){
+		console.log( 'kWidget doPlayCallback ' + playerId );
+		playTime = new Date().getTime() - startTime;
+		writeLog('Player playback time: ' + playTime);
+	};
+	kWidget.embed({
+		'targetId': 'myPlayer',
+		'wid': '_423851',
+		'uiconf_id' : '8776232',
+		'entry_id' : '1_9t28c1xt',
+		'flashvars':{
+			'externalInterfaceDisabled' : false,
+			'autoPlay' : true
+		},
+		'readyCallback': function( playerId ){
+			console.log( "kWidget player ready: " + playerId );
+			readyTime = new Date().getTime() - startTime;
+			writeLog('Player ready time: ' + readyTime);
+			var kdp = document.getElementById( playerId );
+			kdp.addJsListener( 'doPlay', 'doPlayCallback');
+		}
+	});
+</script>
+
+</body>
+</html>
