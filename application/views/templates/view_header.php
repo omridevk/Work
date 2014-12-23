@@ -5,15 +5,13 @@
 <body style ="background-color:#eee;">
 
 <ul id="main-menu" class="sm sm-blue container">
-  <li><a href="#">Item 1</a></li>
-  <li><a href="#">Item 2</a>
+  <li><a href="#">Home</a></li>
+  <li><a href="#">Tests</a>
     <ul>
-      <li><a href="#">Item 2-1</a></li>
-      <li><a href="#">Item 2-2</a></li>
+      <li><a href="/pages/flavorTest">Flavor Tester</a></li>
+      <li><a href="/pages/jsonTest">JSON Tester</a></li>
     </ul>
   </li>
-  <li><a href="#">Item 3</a></li>
-
 </ul>
 
 

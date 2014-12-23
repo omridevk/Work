@@ -1,0 +1,24 @@
+[1223/025659:INFO:scoped_logging.cc(46)] Starting logs for version: 2.6.2
+[1223/025659:INFO:crash_client.cc(242)] GoogleCrashHandler could not be reached.
+[1223/025659:INFO:chrome_cleaner_main.cc(239)] Crash reporting is not available.
+[1223/025700:INFO:chrome_cleaner_main.cc(112)] Successfully re-launched elevated.
+[1223/025700:INFO:chrome_cleaner_main.cc(263)] Exiting with code: 0
+[1223/025700:INFO:chrome_cleaner_main.cc(278)] Self-deleting.
+[1223/025700:WARNING:logging_service.cc(193)] The last 5 log lines have not been uploaded to Safe Browsing.
+[1223/025700:INFO:scoped_logging.cc(46)] Starting logs for version: 2.6.2
+[1223/025700:INFO:chrome_cleaner_main.cc(237)] --elevated
+[1223/025700:INFO:crash_client.cc(242)] GoogleCrashHandler could not be reached.
+[1223/025700:INFO:chrome_cleaner_main.cc(239)] Crash reporting is not available.
+[1223/025700:INFO:recovery_component.cc(179)] Sent request to download Recovery Component.
+[1223/025700:INFO:main_controller.cc(168)] No PUPS found
+[1223/025700:INFO:chrome_profile_reset_component.cc(112)] Using Old version field from registry. Update in progress?
+[1223/025700:INFO:chrome_profile_reset_component.cc(122)] Found Compatible Chrome version: 39.0.2171.95
+[1223/025703:INFO:recovery_component.cc(146)] Recovery Component successfully downloaded.
+[1223/025704:INFO:recovery_component.cc(120)] ChromeRecovery returned code: 0
+[1223/025704:INFO:chrome_profile_reset_component.cc(112)] Using Old version field from registry. Update in progress?
+[1223/025704:INFO:chrome_profile_reset_component.cc(122)] Found Compatible Chrome version: 39.0.2171.95
+[1223/025704:INFO:chrome_profile_reset_component.cc(79)] Found C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+[1223/025704:INFO:safe_browsing_reporter.cc(116)] OnURLFetchUploadProgress(1200/1200).
+[1223/025704:INFO:chrome_cleaner_main.cc(263)] Exiting with code: 2
+[1223/025704:INFO:chrome_cleaner_main.cc(278)] Self-deleting.
+[1223/025704:WARNING:logging_service.cc(193)] The last 3 log lines have not been uploaded to Safe Browsing.
