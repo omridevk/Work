@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<head>
 <div class = "container-fluid">
 <div class="row pull-left" id = "forming" style ="width:100%;">
 	<div class="col-md-3">
@@ -25,9 +23,6 @@
 </div>
 
 <script>
-
-
-
 	var counter = 0;
 
   function loadSources(){
@@ -99,7 +94,7 @@
 
 </script>
 
-</body>
+
 
 <footer>
 

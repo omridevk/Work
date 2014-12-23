@@ -5,7 +5,7 @@
 <!-- Latest compiled and minified JQuery -->
 
 
-<script src="<?=base_url();?>assets/mwEmbed/mwEmbedLoader.php/p/1763321/sp/176332100/embedIframeJs/uiconf_id/27033511/partner_id/1763321"></script>
+<script src="<?=base_url();?>assets/mwEmbed/mwEmbedLoader.php/p/1763321/sp/176332100/embedIframeJs/uiconf_id/27053901/partner_id/1763321"></script>
 
 <script src="<?=base_url();?>/assets/js/kWidget.getSources.js"></script>
 
