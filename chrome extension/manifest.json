@@ -1,0 +1,10 @@
+{
+    "name": "Log in admin console",
+    "version": "1.0",
+    "manifest_version": 2,
+    "content_scripts": [{
+        "js": ["contentscript.js"],
+        "matches": ["https://admin.kaltura.com/admin_console/*"]
+    }],
+    "web_accessible_resources": ["script.js"]
+}
