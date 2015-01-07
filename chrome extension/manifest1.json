@@ -1,0 +1,10 @@
+{
+    "name": "Omri Rules - Remove ads",
+    "version": "1.0",
+    "manifest_version": 2,
+    "content_scripts": [{
+        "js": ["contentscript.js"],
+        "matches": ["http://www.goalim4u.me/*"]
+    }],
+    "web_accessible_resources": ["script.js"]
+}
