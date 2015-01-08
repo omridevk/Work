@@ -4,7 +4,7 @@
     "manifest_version": 2,
     "content_scripts": [{
         "js": ["contentscript.js"],
-        "matches": ["https://admin.kaltura.com/admin_console/*"]
+        "matches": [""]
     }],
     "web_accessible_resources": ["script.js"]
 }
